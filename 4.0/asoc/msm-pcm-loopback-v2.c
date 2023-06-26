@@ -346,6 +346,7 @@ static void stop_pcm(struct msm_pcm_loopback *pcm)
 
 	if (pcm->audio_client == NULL)
 		return;
+
 	mutex_lock(&loopback_session_lock);
 	q6asm_cmd(pcm->audio_client, CMD_CLOSE);
 
@@ -526,7 +527,6 @@ static int msm_pcm_volume_ctl_put(struct snd_kcontrol *kcontrol,
 	}
 	rc = pcm_loopback_set_volume(prtd, volume);
 	mutex_unlock(&loopback_session_lock);
-
 exit:
 	return rc;
 }
@@ -555,7 +555,6 @@ static int msm_pcm_volume_ctl_get(struct snd_kcontrol *kcontrol,
 	}
 	ucontrol->value.integer.value[0] = prtd->volume;
 	mutex_unlock(&loopback_session_lock);
-
 exit:
 	return rc;
 }
@@ -841,11 +840,13 @@ static int msm_pcm_channel_mixer_cfg_ctl_put(struct snd_kcontrol *kcontrol,
 			session_type,
 			chmixer_pspd);
 
+	mutex_lock(&loopback_session_lock);
 	if (chmixer_pspd->enable && substream->runtime) {
 		prtd = substream->runtime->private_data;
 		if (!prtd) {
 			pr_err("%s find invalid prtd fail\n", __func__);
 			ret = -EINVAL;
+			mutex_unlock(&loopback_session_lock);
 			goto done;
 		}
 
@@ -858,7 +859,7 @@ static int msm_pcm_channel_mixer_cfg_ctl_put(struct snd_kcontrol *kcontrol,
 					chmixer_pspd);
 		}
 	}
-
+	mutex_unlock(&loopback_session_lock);
 	if (reset_override_out_ch_map)
 		chmixer_pspd->override_out_ch_map = false;
 	if (reset_override_in_ch_map)
