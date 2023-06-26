@@ -1077,9 +1077,9 @@ int wcd937x_mbhc_init(struct wcd937x_mbhc **mbhc, struct snd_soc_codec *codec,
 	/* Setting default mbhc detection logic to ADC */
 	wcd_mbhc->mbhc_detection_logic = WCD_DETECTION_ADC;
 
-	pdata = dev_get_platdata(codec->component.dev);
+	pdata = dev_get_platdata(codec->dev);
 	if (!pdata) {
-		dev_err(codec->component.dev, "%s: pdata pointer is NULL\n",
+		dev_err(codec->dev, "%s: pdata pointer is NULL\n",
 			__func__);
 		ret = -EINVAL;
 		goto err;
