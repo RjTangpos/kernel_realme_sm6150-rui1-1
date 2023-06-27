@@ -2683,10 +2683,9 @@ int f2fs_sanity_check_ckpt(struct f2fs_sb_info *sbi)
 		for (j = 0; j < NR_CURSEG_DATA_TYPE; j++) {
 			if (le32_to_cpu(ckpt->cur_node_segno[i]) ==
 				le32_to_cpu(ckpt->cur_data_segno[j])) {
-				f2fs_msg(sbi->sb, KERN_ERR,
-					"Node segment (%u) and Data segment (%u)"
-					" has the same segno: %u", i, j,
-					le32_to_cpu(ckpt->cur_node_segno[i]));
+				f2fs_err(sbi, "Data segment (%u) and Data segment (%u) has the same segno: %u",
+					 i, j,
+					 le32_to_cpu(ckpt->cur_node_segno[i]));
 				return 1;
 			}
 		}
@@ -2888,11 +2887,10 @@ static int read_raw_super_block(struct f2fs_sb_info *sbi,
 		}
 
 		/* sanity checking of raw super */
-		if (sanity_check_raw_super(sbi, bh)) {
-			f2fs_msg(sb, KERN_ERR,
-				"Can't find valid F2FS filesystem in %dth superblock",
-				block + 1);
-			err = -EFSCORRUPTED;
+		err = sanity_check_raw_super(sbi, bh);
+		if (err) {
+			f2fs_err(sbi, "Can't find valid F2FS filesystem in %dth superblock",
+				 block + 1);
 			brelse(bh);
 			continue;
 		}
